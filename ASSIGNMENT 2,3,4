@@ -1,1 +1,185 @@
+                                             classes/objects, encapsulation, polymorphism
+#include <iostream>
+#include <vector>
+#include <map>
+#include <algorithm>
+using namespace std;
 
+// ----- Base Class -----
+class Person {
+protected:
+    string name;
+    int age;
+    string id;
+
+public:
+    Person(string n, int a, string i) {
+        setName(n);
+        setAge(a);
+        id = i;
+    }
+
+    void setName(string n) {
+        if (n.empty()) n = "Unknown";
+        name = n;
+    }
+
+    void setAge(int a) {
+        age = (a > 0 && a < 130) ? a : 18;
+    }
+
+    virtual void displayDetails() {
+        cout << "Name: " << name << ", Age: " << age << ", ID: " << id << endl;
+    }
+
+    virtual double calculatePayment() {
+        return 0.0;
+    }
+
+    virtual ~Person() {}
+};
+
+// ----- Derived Classes -----
+class Student : public Person {
+    float gpa;
+
+public:
+    Student(string n, int a, string i, float g) : Person(n, a, i) {
+        setGPA(g);
+    }
+
+    void setGPA(float g) {
+        gpa = (g >= 0.0 && g <= 4.0) ? g : 0.0;
+    }
+
+    void displayDetails() override {
+        Person::displayDetails();
+        cout << "GPA: " << gpa << endl;
+    }
+
+    double calculatePayment() override {
+        return 10000.0;
+    }
+};
+
+class Professor : public Person {
+    string department;
+
+public:
+    Professor(string n, int a, string i, string dept) : Person(n, a, i), department(dept) {}
+
+    void displayDetails() override {
+        Person::displayDetails();
+        cout << "Department: " << department << endl;
+    }
+
+    double calculatePayment() override {
+        return 50000.0;
+    }
+};
+
+                                           inheritance,Composition/Aggregation, Method Overriding and Extension
+class Course {
+    string code;
+    int credits;
+
+public:
+    Course(string c, int cr) : code(c) {
+        credits = (cr > 0) ? cr : 1;
+    }
+
+    void show() {
+        cout << "Course Code: " << code << ", Credits: " << credits << endl;
+    }
+};
+
+class Department {
+    string name;
+
+public:
+    Department(string n) : name(n) {}
+
+    void show() {
+        cout << "Department: " << name << endl;
+    }
+};
+
+class GradeBook {
+    map<string, float> grades;
+
+public:
+    void addGrade(string id, float g) {
+        grades[id] = g;
+    }
+
+    float average() {
+        float sum = 0;
+        for (auto& g : grades) sum += g.second;
+        return grades.empty() ? 0 : sum / grades.size();
+    }
+
+    float highest() {
+        float maxG = 0;
+        for (auto& g : grades) maxG = max(maxG, g.second);
+        return maxG;
+    }
+
+    void showFailing() {
+        for (auto& g : grades)
+            if (g.second < 50.0) cout << "Failing: " << g.first << " (" << g.second << ")\n";
+    }
+};
+
+class EnrollmentManager {
+    map<string, vector<string>> enrollments;
+
+public:
+    void enroll(string course, string studentID) {
+        enrollments[course].push_back(studentID);
+    }
+
+    void showEnrolled(string course) {
+        cout << "Students in " << course << ": ";
+        for (string id : enrollments[course]) cout << id << " ";
+        cout << endl;
+    }
+};
+                                          Custom Exceptions, Exception Handling,System Integration
+int main() {
+    // People
+    Student s1("Ali", 20, "S101", 3.5);
+    Professor p1("Dr. Sara", 40, "P202", "CS");
+
+    // Show Details
+    s1.displayDetails();
+    p1.displayDetails();
+
+    // Polymorphism
+    Person* people[2] = { &s1, &p1 };
+    for (int i = 0; i < 2; i++) {
+        people[i]->displayDetails();
+        cout << "Payment: " << people[i]->calculatePayment() << "\n\n";
+    }
+
+    // Course & Department
+    Course c("CS101", 3);
+    Department d("Computer Science");
+    c.show();
+    d.show();
+
+    // Grades
+    GradeBook gb;
+    gb.addGrade("S101", 90);
+    gb.addGrade("S102", 40);
+    cout << "\nAverage Grade: " << gb.average() << endl;
+    cout << "Highest Grade: " << gb.highest() << endl;
+    gb.showFailing();
+
+    // Enrollments
+    EnrollmentManager em;
+    em.enroll("CS101", "S101");
+    em.enroll("CS101", "S102");
+    em.showEnrolled("CS101");
+
+    return 0;
+}
